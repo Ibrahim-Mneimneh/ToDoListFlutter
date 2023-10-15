@@ -56,6 +56,7 @@ UserSchema.statics.login = async function (signature, password) {
   if (!signature || !password) {
     throw Error("All fields must be filled.");
   }
+
   var identity = "";
   if (validator.isEmail(signature)) {
     identity = await this.findOne({ email: signature });
