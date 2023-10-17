@@ -7,6 +7,5 @@
     "mongoose": "^7.5.0",
     "nodemon": "^3.0.1",
     "validator": "^13.11.0"
-  },
-  "proxy":"https://todobuddy.onrender.com"
+  }
 }
