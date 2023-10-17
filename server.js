@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const express = require("express");
 dotenv = require("dotenv");
 userRoutes = require("./Routes/user");
+taskRouter = require("./Routes/task");
 const app = express();
 dotenv.config();
 
@@ -13,6 +14,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/user", userRoutes);
+app.use("/api/task", taskRouter);
 
 mongoose
   .connect(process.env.DBURL)
