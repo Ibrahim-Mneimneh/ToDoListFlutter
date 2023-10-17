@@ -16,6 +16,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/user", userRoutes);
+app.use("/api/task", taskRoutes);
 
 mongoose
   .connect(process.env.DBURL)

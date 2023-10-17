@@ -22,7 +22,7 @@ const verifyUser = async (req, res, next) => {
     next();
   } catch (error) {
     console.log(error);
-    res.staus(401).json({ error: "UnAuthorized Request!" });
+    res.status(401).json({ error: "UnAuthorized Request!" });
   }
 };
-module.exports = { verifyUser };
+module.exports = verifyUser;
