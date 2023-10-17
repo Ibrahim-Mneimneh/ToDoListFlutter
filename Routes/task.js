@@ -5,10 +5,10 @@ const {
   deleteTask,
   updateTask,
 } = require("../Controllers/taskController");
-
+const verifyUser = require("../Middleware/UserAuth");
 const router = express.Router();
 //midddleware to Authenticate users
-router.use(requireAuth);
+router.use(verifyUser);
 
 router.get("/", getTasks);
 router.post("/", createTask);
