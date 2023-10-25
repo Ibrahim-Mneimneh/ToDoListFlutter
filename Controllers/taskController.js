@@ -51,7 +51,6 @@ const createTask = async (req, res) => {
 };
 //delete task
 const deleteTask = async (req, res) => {
-  verifyUser();
   const { id } = req.params;
 
   const task = await Task.findById({ _id: id });

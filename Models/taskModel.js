@@ -25,6 +25,9 @@ const TaskScehama = new Schema(
       type: Number,
       required: true,
     },
+    estimatedDate: {
+      type: timestamps,
+    },
   },
   { timestamps: true }
 );
