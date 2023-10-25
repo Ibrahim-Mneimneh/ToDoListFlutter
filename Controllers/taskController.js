@@ -30,7 +30,7 @@ const createTask = async (req, res) => {
     status: "Up coming";
   }
   if (!color) {
-    color: red;
+    color: "red";
   }
   if (!priority) {
     priority: 0;
