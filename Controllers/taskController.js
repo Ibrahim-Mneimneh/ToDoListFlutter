@@ -56,7 +56,7 @@ const createTask = async (req, res) => {
       userId,
     });
     let { userId, ...safeTask } = task._doc;
-    res.status(200).json(task);
+    res.status(200).json(safeTask);
   } catch (error) {
     res.status(400).sjon({ error: error.message });
   }
