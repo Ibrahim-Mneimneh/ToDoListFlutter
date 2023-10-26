@@ -5,21 +5,25 @@ const User = require("../Models/userModel");
 //get user Tasks (Without order)
 const getTasks = async (req, res) => {
   const userId = req.userId;
-  let tasks = await Task.findOne({ userId });
-  if (!tasks) {
-    return res.status(404).json({ error: "User has no posts." });
+  try {
+    let tasks = await Task.findOne({ userId });
+    if (!tasks) {
+      return res.status(404).json({ error: "User has no posts." });
+    }
+    if (!Array.isArray(tasks)) {
+      tasks = [tasks];
+    }
+    let safeTasks = tasks.map((task) => {
+      let { userId, ...safeTasks } = task._doc;
+      return safeTasks;
+    });
+    res.status(200).json(safeTasks);
+  } catch (error) {
+    res.status(400).sjon({ error: error.message });
   }
-  if (!Array.isArray(tasks)) {
-    tasks = [tasks];
-  }
-  let safeTasks = tasks.map((task) => {
-    let { userId, ...safeTasks } = task._doc;
-    return safeTasks;
-  });
-  res.status(200).json(safeTasks);
 };
 
-//get a single Task
+//create a Task
 
 const createTask = async (req, res) => {
   const userId = req.userId;
@@ -59,17 +63,19 @@ const createTask = async (req, res) => {
 //delete task
 const deleteTask = async (req, res) => {
   const { id } = req.params;
-
-  const task = await Task.findById({ _id: id });
-
-  if (!task) {
-    return res.status(400).json({ error: "No such task." });
+  try {
+    const task = await Task.findById({ _id: id });
+    if (!task) {
+      return res.status(400).json({ error: "No such task." });
+    }
+    if (task.userId != req.userId) {
+      res.status(400).json({ error: "No such task." });
+    }
+    await Task.deleteOne({ _id: id });
+    res.status(200).json(task);
+  } catch (error) {
+    res.status(400).sjon({ error: error.message });
   }
-  if (task.userId != req.userId) {
-    res.status(400).json({ error: "No such task." });
-  }
-  await Task.deleteOne({ _id: id });
-  res.status(200).json(task);
 };
 
 // update a task
