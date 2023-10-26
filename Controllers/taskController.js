@@ -5,11 +5,18 @@ const User = require("../Models/userModel");
 //get user Tasks (Without order)
 const getTasks = async (req, res) => {
   const userId = req.userId;
-  const tasks = await Task.findById({ userId });
+  let tasks = await Task.findOne({ userId });
   if (!tasks) {
     return res.status(404).json({ error: "User has no posts." });
   }
-  res.status(200).json(tasks);
+  if (!Array.isArray(tasks)) {
+    tasks = [tasks];
+  }
+  let safeTasks = tasks.map((task) => {
+    let { userId, ...safeTasks } = task._doc;
+    return safeTasks;
+  });
+  res.status(200).json(safeTasks);
 };
 
 //get a single Task
@@ -56,8 +63,12 @@ const deleteTask = async (req, res) => {
   const task = await Task.findById({ _id: id });
 
   if (!task) {
+    return res.status(400).json({ error: "No such task." });
+  }
+  if (task.userId != req.userId) {
     res.status(400).json({ error: "No such task." });
   }
+  await Task.deleteOne({ _id: id });
   res.status(200).json(task);
 };
 
@@ -68,13 +79,15 @@ const updateTask = async (req, res) => {
   const task = await Task.findById({ _id: id });
 
   if (!task) {
-    res.status(400).json({ error: "No such task" });
+    return res.status(400).json({ error: "No such task" });
   }
-  const updatedTask = await Task.findOneAndUpdate({ _id: id }, { ...req.body });
-  if (!updatedTask) {
-    return res.status(400).json({ error: "No such task." });
+
+  const oldTask = await Task.findOneAndUpdate({ _id: id }, { ...req.body });
+  if (!oldTask) {
+    res.status(400).json({ error: "No such task." });
   }
-  res.staus(200).json({ task: updateTask });
+  const { userId, ...safeOldTask } = oldTask._doc;
+  res.status(200).json(safeOldTask);
 };
 
 module.exports = {
