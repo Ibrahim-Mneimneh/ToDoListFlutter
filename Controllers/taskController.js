@@ -6,7 +6,7 @@ const User = require("../Models/userModel");
 const getTasks = async (req, res) => {
   const userId = req.userId;
   try {
-    let tasks = await Task.findOne({ userId });
+    let tasks = await Task.find({ userId });
     if (!tasks) {
       return res.status(404).json({ error: "User has no posts." });
     }
