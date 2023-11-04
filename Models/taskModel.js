@@ -22,7 +22,7 @@ const TaskScehama = new Schema(
       type: String,
     },
     priority: {
-      type: Number,
+      type: String,
       required: true,
     },
     estimatedDate: {

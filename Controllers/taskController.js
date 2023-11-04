@@ -38,13 +38,13 @@ const createTask = async (req, res) => {
     description = "Task Description";
   }
   if (!status) {
-    status: "Up coming";
+    status = "Up coming";
   }
   if (!color) {
-    color: "red";
+    color = "red";
   }
   if (!priority) {
-    priority: 0;
+    priority = "Low";
   }
   try {
     const task = await Task.create({

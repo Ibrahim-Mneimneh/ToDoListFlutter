@@ -2,11 +2,14 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 const userAuthSchema = new Schema({
-  userId: {
+  userId: { type: Schema.Types.ObjectId, ref: "users", requred: true },
+  userEmail: {
     type: String,
-    required: true,
+    requied: true,
   },
   verified: {
     type: Boolean,
+    default: false,
   },
 });
+module.exports = mongoose.model("userAuth", userAuthSchema);
