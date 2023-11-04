@@ -27,7 +27,7 @@ const getTasks = async (req, res) => {
 
 const createTask = async (req, res) => {
   const userId0 = req.userId;
-  const { title, description, status, color, priority } = req.body;
+  let { title, description, status, color, priority } = req.body;
   if (!title && !description && !status && !priority) {
     res.status(400).json({ error: "Please add some task credentials." });
   }
