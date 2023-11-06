@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Email Verification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        #link{
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        .link{
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h2>{{subject}}</h2>
+        <p>Hello {{username}},</p>
+        <p>Please click the button below to verify your email address.</p>
+        <div class="link">
+            <a href="{{link}}" id="link">{{subject}}</a>
+        </div>
+        <p>If the button above doesn't work, you can also click on the following link: <a href="{{link}}">here</a></p>
+        
+        <p>Thank you!</p>
+    </div>
+</body>
+
+</html>
