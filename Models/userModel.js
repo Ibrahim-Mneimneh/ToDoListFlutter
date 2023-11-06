@@ -21,7 +21,11 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
-  verified: {
+  is2FAEnabled: {
+    type: Boolean,
+    default: false,
+  },
+  isBiometricAuthEnabled: {
     type: Boolean,
     default: false,
   },

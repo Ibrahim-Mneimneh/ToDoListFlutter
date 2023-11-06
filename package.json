@@ -3,8 +3,11 @@
     "bcrypt": "^5.1.1",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "fs": "^0.0.1-security",
+    "handlebars": "^4.7.8",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.0",
+    "nodemailer": "^6.9.7",
     "nodemon": "^3.0.1",
     "random": "^4.1.0",
     "validator": "^13.11.0"

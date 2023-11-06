@@ -3,7 +3,7 @@ const express = require("express");
 dotenv = require("dotenv");
 userRoutes = require("./Routes/user");
 taskRoutes = require("./Routes/task");
-
+authRoutes = require("./Routes/userAuth");
 const app = express();
 
 dotenv.config();
@@ -14,7 +14,7 @@ app.use((req, res, next) => {
   console.log(req.path);
   next();
 });
-
+app.use("/api/", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/task", taskRoutes);
 

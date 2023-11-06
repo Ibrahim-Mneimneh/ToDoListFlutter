@@ -19,7 +19,7 @@ const getTasks = async (req, res) => {
     });
     res.status(200).json(safeTasks);
   } catch (error) {
-    res.status(400).sjon({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
@@ -58,7 +58,7 @@ const createTask = async (req, res) => {
     let { userId, ...safeTask } = task._doc;
     res.status(200).json(safeTask);
   } catch (error) {
-    res.status(400).sjon({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
 //delete task
@@ -75,7 +75,7 @@ const deleteTask = async (req, res) => {
     await Task.deleteOne({ _id: id });
     res.status(200).json(task);
   } catch (error) {
-    res.status(400).sjon({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
 };
 
