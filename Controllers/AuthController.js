@@ -1,47 +1,49 @@
-const userAuth = require("../Models/userAuth");
-const nodemailer = require("nodemailer");
-const fs = require("fs");
-const handlebars = require("handlebars");
-const path = require("path");
-const createVerificationCode = (req, res) => {
-  //Some code
+const User = require("../Models/userModel");
+const UserAuth = require("../Models/authModel");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const createToken = (_id) => {
+  return jwt.sign({ _id }, process.env.SECRET);
 };
 
-const emailSender = async (req, res) => {
-  ///recipientEmail = ""; ****************************************************************
-  subject = "Email Verification";
-  link =
-    "https://icas.bau.edu.lb:8443/cas/login?service=https://mis.bau.edu.lb/web/v12/iconnectv12/cas/sso.aspx";
-  username = "IbrahimMneimneh";
+const verifyEmail = async (req, res) => {
+  const { pin, email } = req.body;
   try {
-    const transporter = nodemailer.createTransport({
-      service: process.env.centralService,
-      auth: {
-        user: process.env.centralName,
-        pass: process.env.centralPass,
-      },
-    });
-    const templatePath = path.join(__dirname, "verifyEmail.hbs");
-    const source = fs.readFileSync(templatePath, "utf8");
-    const template = handlebars.compile(source);
-    const mailOptions = {
-      from: process.env.centralName,
-      to: recipientEmail,
-      subject,
-      html: template({ link, subject, username }),
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-      if (error) {
-        console.log("Error sending email: ", error);
-        res.status(500).json(error);
-      } else {
-        res.status(200).json({ message: "Email sent successfuly" });
-      }
-    });
+    const userAuth = await UserAuth.findOne({ userEmail: email });
+    // check for the userAuth
+    if (!userAuth) {
+      return res.status(403).json({ error: "UnAuthorized Access!" });
+    }
+    // check if the token is expired if so delete it
+    if (userAuth.expiresIn < Date.now()) {
+      const deletedUserAuth = await UserAuth.findOneAndDelete({
+        userEmail: email,
+      });
+      return res.status(400).json({ error: "Session expired" });
+    }
+    if (userAuth.trials >= 4) {
+      return res.status(403).json({ error: "UnAuthorized Access!" });
+    }
+    const match = await bcrypt.compare(pin, userAuth.pin);
+    // if the pin  doesn't matches that in the database
+    if (!match) {
+      const updatedAuth = await UserAuth.findOneAndUpdate(
+        { userEmail: email },
+        { trials: userAuth.trials + 1 }
+      );
+      return res.status(403).json({ error: "UnAuthorized Access!" });
+    }
+    // update the user to verified
+    const updatedUser = await User.findOneAndUpdate(
+      { email },
+      { isVerified: true }
+    );
+    //send the user data
+    const { _id, password: userPassword, ...userData } = updatedUser.toObject();
+    const token = createToken(updatedUser._id);
+    return res.status(200).json({ token, ...userData });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message });
   }
 };
-
-module.exports = { emailSender };
+module.exports = { verifyEmail };

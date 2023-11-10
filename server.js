@@ -14,8 +14,9 @@ app.use((req, res, next) => {
   console.log(req.path);
   next();
 });
-app.use("/api/", authRoutes);
+
 app.use("/api/user", userRoutes);
+app.use("/api", authRoutes);
 app.use("/api/task", taskRoutes);
 
 mongoose

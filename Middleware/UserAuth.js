@@ -25,4 +25,4 @@ const verifyUser = async (req, res, next) => {
     res.status(401).json({ error: "UnAuthorized Request!" });
   }
 };
-module.exports = verifyUser;
+module.exports = { verifyUser };

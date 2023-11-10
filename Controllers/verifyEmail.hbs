@@ -5,42 +5,60 @@
     <meta charset="UTF-8">
     <title>Email Verification</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        #link{
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 15px;
-            margin-bottom: 15px;
-        }
-        .link{
-            display: flex;
-            width: 100%;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
+      body {
+        font-family: sans-serif;
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+
+      h1 {
+        font-size: 2.4rem;
+        margin-bottom: 0;
+      }
+
+      p {
+        margin-top: 0;
+      }
+
+      a {
+        color: #3498db;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .pinContainer {
+        width: 100vw;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        justify-items: center;
+      }
+
+      .pin {
+        width: fit-content;
+        padding: 10px 10px 10px 10px;
+        border-radius: 0.5rem;
+        background-color: #3498db;
+        color: white;
+      }  
+
     </style>
 </head>
 
 <body>
     <div>
-        <h2>{{subject}}</h2>
-        <p>Hello {{username}},</p>
-        <p>Please click the button below to verify your email address.</p>
-        <div class="link">
-            <a href="{{link}}" id="link">{{subject}}</a>
-        </div>
-        <p>If the button above doesn't work, you can also click on the following link: <a href="{{link}}">here</a></p>
+        <h1>{{Subject}}</h1>
         
-        <p>Thank you!</p>
+        <p>Hi {{ username }},</p>
+        
+        <p>Welcome to ToDo Buddy! To verify your email address and start using your account, please enter this pin to the verification field:</p>
+        <div class="pinContainer"><p class="pin">{{ pin }}</p></div>
+        <p>If you don't enter the PIN within 30 mins, your verification pin will expire.</p>
+        <p>Thanks,</p>
+        <p>To Do Buddy Support</p>
     </div>
 </body>
 
