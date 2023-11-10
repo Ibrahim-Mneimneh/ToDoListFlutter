@@ -48,6 +48,7 @@ const loginUser = async (req, res) => {
         return res.status(200).json({ token });
       }
     }
+    // we can delete the old ones here if possible
     const { _id, password: userPassword, ...userData } = user.toObject();
     res.status(200).json({ token, ...userData });
   } catch (error) {
