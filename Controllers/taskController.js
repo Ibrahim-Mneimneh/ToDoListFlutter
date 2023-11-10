@@ -27,8 +27,8 @@ const getTasks = async (req, res) => {
 
 const createTask = async (req, res) => {
   const userId0 = req.userId;
-  let { title, description, status, color, priority } = req.body;
-  if (!title && !description && !status && !priority) {
+  let { title, description, status, color, priority, estimatedDate } = req.body;
+  if (!title || !description) {
     res.status(400).json({ error: "Please add some task credentials." });
   }
   if (!title) {
@@ -38,13 +38,16 @@ const createTask = async (req, res) => {
     description = "Task Description";
   }
   if (!status) {
-    status = "Up coming";
+    status = "Unfinished";
   }
   if (!color) {
-    color = "red";
+    color = "ff24a09b";
   }
   if (!priority) {
     priority = "Low";
+  }
+  if (!estimatedDate) {
+    estimatedDate = new Date();
   }
   try {
     const task = await Task.create({
@@ -54,6 +57,7 @@ const createTask = async (req, res) => {
       color,
       priority,
       userId: userId0,
+      estimatedDate,
     });
     let { userId, ...safeTask } = task._doc;
     res.status(200).json(safeTask);
@@ -61,6 +65,7 @@ const createTask = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 //delete task
 const deleteTask = async (req, res) => {
   const { id } = req.params;
@@ -90,6 +95,7 @@ const updateTask = async (req, res) => {
   }
 
   const oldTask = await Task.findOneAndUpdate({ _id: id }, { ...req.body });
+
   if (!oldTask) {
     res.status(400).json({ error: "No such task." });
   }
