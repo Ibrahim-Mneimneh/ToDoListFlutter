@@ -34,6 +34,7 @@ const loginUser = async (req, res) => {
           userEmail: user.email,
           pin: hashedPin,
         });
+
         emailSender(user.email, "Email Verification", user.username, pin);
         return res.status(200).json({ token });
       }
