@@ -121,9 +121,21 @@ const toggleBiometricAuth = async (req, res) => {
   }
 };
 
+const getUser = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const user = await User.findById(userId);
+    const { _id, password: userPassword, ...userData } = user.toObject();
+    res.status(200).json(userData);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+};
+
 module.exports = {
   loginUser,
   signupUser,
   toggle2FA,
   toggleBiometricAuth,
+  getUser,
 };
