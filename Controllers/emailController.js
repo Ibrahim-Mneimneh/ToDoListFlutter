@@ -21,7 +21,6 @@ const emailSender = async (recipientEmail, subject, username, pin) => {
       subject,
       html: template({ pin, subject, username }),
     };
-
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
         throw Error("Error sending email");

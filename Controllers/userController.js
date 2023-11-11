@@ -34,8 +34,7 @@ const loginUser = async (req, res) => {
           userEmail: user.email,
           pin: hashedPin,
         });
-
-        emailSender(user.email, "Email Verification", user.username, pin);
+        await emailSender(user.email, "Email Verification", user.username, pin);
         return res.status(200).json({ token });
       }
       // we check if we sent him an email but its expired
@@ -44,7 +43,14 @@ const loginUser = async (req, res) => {
         const deletedUserAuth = await UserAuth.findOneAndDelete({
           userEmail: user.email,
         });
-        emailSender(user.email, "Email Verification", user.username);
+        let pin = createVerificationPin();
+        const salt = await bcrypt.genSalt(10);
+        hashedPin = await bcrypt.hash(pin, salt);
+        const userAuth = await UserAuth.create({
+          userEmail: user.email,
+          pin: hashedPin,
+        });
+        await emailSender(user.email, "Email Verification", user.username, pin);
         return res.status(200).json({ token });
       }
     }
@@ -66,7 +72,7 @@ const signupUser = async (req, res) => {
       userEmail: email,
       pin: hashedPin,
     });
-    emailSender(email, "Email Verification", username, pin);
+    await emailSender(email, "Email Verification", username, pin);
     const token = createToken(user._id);
     res.status(201).json({ token });
   } catch (error) {
