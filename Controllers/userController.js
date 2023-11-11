@@ -87,7 +87,8 @@ const toggle2FA = async (req, res) => {
     const is2FA = user.is2FAEnabled;
     const updatedUser = await User.findByIdAndUpdate(
       { _id: userId },
-      { is2FAEnabled: !is2FA }
+      { is2FAEnabled: !is2FA },
+      { new: true }
     );
     const {
       _id,
@@ -107,7 +108,8 @@ const toggleBiometricAuth = async (req, res) => {
     const isBioAuth = user.isBiometricAuthEnabled;
     const updatedUser = await User.findByIdAndUpdate(
       { _id: userId },
-      { isBiometricAuthEnabled: !isBioAuth }
+      { isBiometricAuthEnabled: !isBioAuth },
+      { new: true }
     );
 
     const {
