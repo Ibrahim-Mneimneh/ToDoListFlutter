@@ -87,8 +87,13 @@ const deleteTask = async (req, res) => {
 // update a task
 const updateTask = async (req, res) => {
   const { id } = req.params;
+  const userIdentity = req.userId;
 
   const task = await Task.findById({ _id: id });
+
+  if (task.userId != userIdentity) {
+    return res.status(400).json({ error: "UnAuthorized Access!" });
+  }
 
   if (!task) {
     return res.status(400).json({ error: "No such task" });

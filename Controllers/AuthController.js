@@ -12,7 +12,7 @@ const verifyEmail = async (req, res) => {
     const userAuth = await UserAuth.findOne({ userEmail: email });
     // check for the userAuth
     if (!userAuth) {
-      return res.status(403).json({ error: "UnAuthorized Access! 1" });
+      return res.status(403).json({ error: "UnAuthorized Access!" });
     }
     // check if the token is expired if so delete it
     if (userAuth.expiresIn < Date.now()) {
@@ -22,7 +22,7 @@ const verifyEmail = async (req, res) => {
       return res.status(400).json({ error: "Session expired" });
     }
     if (userAuth.trials >= 4) {
-      return res.status(403).json({ error: "UnAuthorized Access!2" });
+      return res.status(403).json({ error: "UnAuthorized Access!" });
     }
     const match = await bcrypt.compare(pin, userAuth.pin);
     // if the pin  doesn't matches that in the database
@@ -31,7 +31,7 @@ const verifyEmail = async (req, res) => {
         { userEmail: email },
         { trials: userAuth.trials + 1 }
       );
-      return res.status(403).json({ error: "UnAuthorized Access!3" });
+      return res.status(403).json({ error: "UnAuthorized Access!" });
     }
     // update the user to verified
     const updatedUser = await User.findOneAndUpdate(
