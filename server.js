@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const express = require("express");
+const { verifyUser } = require("./Middleware/UserAuth");
 dotenv = require("dotenv");
 userRoutes = require("./Routes/user");
 taskRoutes = require("./Routes/task");
@@ -16,6 +17,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/user", userRoutes);
+app.use(verifyUser);
 app.use("/api", authRoutes);
 app.use("/api/task", taskRoutes);
 

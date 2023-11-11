@@ -89,14 +89,12 @@ const toggle2FA = async (req, res) => {
       { _id: userId },
       { is2FAEnabled: !is2FA }
     );
-
-    res
-      .status(200)
-      .json(
-        !is2FA
-          ? "2 Factor Authentication Enabled"
-          : "2 Factor Authentication Disabled"
-      );
+    const {
+      _id,
+      password: userPassword,
+      ...updatedUserData
+    } = updatedUser.toObject();
+    res.status(200).json(updatedUserData);
   } catch (err) {
     res.status(400).json(err);
   }
@@ -112,13 +110,12 @@ const toggleBiometricAuth = async (req, res) => {
       { isBiometricAuthEnabled: !isBioAuth }
     );
 
-    res
-      .status(200)
-      .json(
-        !isBioAuth
-          ? "Biometric Authentication Enabled"
-          : "Biometric Authentication Disabled"
-      );
+    const {
+      _id,
+      password: userPassword,
+      ...updatedUserData
+    } = updatedUser.toObject();
+    res.status(200).json(updatedUserData);
   } catch (err) {
     res.status(400).json(err);
   }
