@@ -41,7 +41,7 @@ const loginUser = async (req, res) => {
         return res.status(200).json({
           token,
           is2FAEnabled,
-          isBiometricAuthEnabled: user.isBiometricAuthEnabled,
+          isVerified,
         });
       }
       // we check if we sent him an email but its expired
@@ -62,20 +62,19 @@ const loginUser = async (req, res) => {
         return res.status(200).json({
           token,
           is2FAEnabled,
-          isBiometricAuthEnabled: user.isBiometricAuthEnabled,
+          isVerified,
         });
       } else {
         return res.status(200).json({
           token,
           is2FAEnabled,
-          isBiometricAuthEnabled: user.isBiometricAuthEnabled,
+          isVerified,
         });
       }
     }
     // we can delete the old ones here if possible
     const { _id, password: userPassword, ...userData } = user.toObject();
     return res.status(200).json({ token, ...userData });
-    console.log("I am here");
   } catch (error) {
     return res.status(401).json({ error: error.message });
   }
