@@ -33,6 +33,7 @@ const loginUser = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         hashedPin = await bcrypt.hash(pin, salt);
         const userAuth = await UserAuth.create({
+          userId: user._id,
           userEmail: user.email,
           pin: hashedPin,
         });
@@ -54,6 +55,7 @@ const loginUser = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         hashedPin = await bcrypt.hash(pin, salt);
         const userAuth = await UserAuth.create({
+          userId: user._id,
           userEmail: user.email,
           pin: hashedPin,
         });

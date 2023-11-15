@@ -7,9 +7,10 @@ const createToken = (_id) => {
 };
 
 const verifyEmail = async (req, res) => {
-  const { pin, email } = req.body;
+  const { pin } = req.body;
+  const userId = req.userId;
   try {
-    const userAuth = await UserAuth.findOne({ userEmail: email });
+    const userAuth = await UserAuth.findOne({ userId });
     // check for the userAuth
     if (!userAuth) {
       return res.status(403).json({ error: "UnAuthorized Access!" });
@@ -17,7 +18,7 @@ const verifyEmail = async (req, res) => {
     // check if the token is expired if so delete it
     if (userAuth.expiresIn < Date.now()) {
       const deletedUserAuth = await UserAuth.findOneAndDelete({
-        userEmail: email,
+        userId,
       });
       return res.status(400).json({ error: "Session expired" });
     }
@@ -28,14 +29,14 @@ const verifyEmail = async (req, res) => {
     // if the pin  doesn't matches that in the database
     if (!match) {
       const updatedAuth = await UserAuth.findOneAndUpdate(
-        { userEmail: email },
+        { userId },
         { trials: userAuth.trials + 1 }
       );
       return res.status(403).json({ error: "UnAuthorized Access!" });
     }
     // update the user to verified
     const updatedUser = await User.findOneAndUpdate(
-      { email },
+      { _id: userId },
       { isVerified: true }
     );
     //send the user data
