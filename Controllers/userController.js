@@ -35,13 +35,11 @@ const loginUser = async (req, res) => {
           pin: hashedPin,
         });
         await emailSender(user.email, "Email Verification", user.username, pin);
-        return res
-          .status(200)
-          .json({
-            token,
-            is2FAEnabled: user.is2FAEnabled,
-            isBiometricAuthEnabled: user.isBiometricAuthEnabled,
-          });
+        return res.status(200).json({
+          token,
+          is2FAEnabled: user.is2FAEnabled,
+          isBiometricAuthEnabled: user.isBiometricAuthEnabled,
+        });
       }
       // we check if we sent him an email but its expired
       if (userAuth.expiresIn < Date.now()) {
@@ -57,7 +55,11 @@ const loginUser = async (req, res) => {
           pin: hashedPin,
         });
         await emailSender(user.email, "Email Verification", user.username, pin);
-        return res.status(200).json({ token });
+        return res.status(200).json({
+          token,
+          is2FAEnabled: user.is2FAEnabled,
+          isBiometricAuthEnabled: user.isBiometricAuthEnabled,
+        });
       }
     }
     // we can delete the old ones here if possible
