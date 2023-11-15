@@ -22,9 +22,11 @@ const loginUser = async (req, res) => {
     const isVerified = user.isVerified;
     const is2FAEnabled = user.is2FAEnabled;
     const token = createToken(user._id);
-    // not verified or has 2FA on
+
+    // not verified
     if (!isVerified || is2FAEnabled) {
       const userAuth = await UserAuth.findOne({ userEmail: user.email });
+
       // if we didnt send him a code
       if (!userAuth) {
         let pin = createVerificationPin();
@@ -34,10 +36,11 @@ const loginUser = async (req, res) => {
           userEmail: user.email,
           pin: hashedPin,
         });
-        await emailSender(user.email, "Email Verification", user.username, pin);
+        emailSender(user.email, "Email Verification", user.username, pin);
+
         return res.status(200).json({
           token,
-          is2FAEnabled: user.is2FAEnabled,
+          is2FAEnabled,
           isBiometricAuthEnabled: user.isBiometricAuthEnabled,
         });
       }
@@ -54,19 +57,27 @@ const loginUser = async (req, res) => {
           userEmail: user.email,
           pin: hashedPin,
         });
-        await emailSender(user.email, "Email Verification", user.username, pin);
+        emailSender(user.email, "Email Verification", user.username, pin);
+
         return res.status(200).json({
           token,
-          is2FAEnabled: user.is2FAEnabled,
+          is2FAEnabled,
+          isBiometricAuthEnabled: user.isBiometricAuthEnabled,
+        });
+      } else {
+        return res.status(200).json({
+          token,
+          is2FAEnabled,
           isBiometricAuthEnabled: user.isBiometricAuthEnabled,
         });
       }
     }
     // we can delete the old ones here if possible
     const { _id, password: userPassword, ...userData } = user.toObject();
-    res.status(200).json({ token, ...userData });
+    return res.status(200).json({ token, ...userData });
+    console.log("I am here");
   } catch (error) {
-    res.status(401).json({ error: error.message });
+    return res.status(401).json({ error: error.message });
   }
 };
 

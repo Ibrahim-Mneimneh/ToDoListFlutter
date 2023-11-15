@@ -13,7 +13,6 @@ const userAuthSchema = new Schema({
   trials: {
     type: Number,
     default: 1,
-    max: 3,
   },
   pin: {
     type: String,
