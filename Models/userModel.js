@@ -33,6 +33,10 @@ const UserSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  dateModified: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 
 UserSchema.statics.signup = async function (username, email, password) {
@@ -55,7 +59,7 @@ UserSchema.statics.signup = async function (username, email, password) {
       const salt = await bcrypt.genSalt(10);
       const hash = await bcrypt.hash(password, salt);
       const user = await this.create({ email, username, password: hash });
-      return user;
+      return { user, salt };
     }
   }
 };

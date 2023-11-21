@@ -1,7 +1,10 @@
 const express = require("express");
-const { verifyEmail } = require("../Controllers/AuthController");
+const {
+  verifyEmail,
+  verifyForgetPassword,
+} = require("../Controllers/AuthController");
 const router = express.Router();
 
 router.post("/verifyEmail", verifyEmail);
-
+router.post("/ResetPassword", verifyForgetPassword);
 module.exports = router;

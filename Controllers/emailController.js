@@ -3,7 +3,13 @@ const fs = require("fs");
 const handlebars = require("handlebars");
 const path = require("path");
 
-const emailSender = async (recipientEmail, subject, username, pin) => {
+const emailSender = async (
+  recipientEmail,
+  subject,
+  username,
+  pin,
+  filePath
+) => {
   try {
     const transporter = nodemailer.createTransport({
       service: process.env.centralService,
@@ -12,7 +18,7 @@ const emailSender = async (recipientEmail, subject, username, pin) => {
         pass: process.env.centralPass,
       },
     });
-    const templatePath = path.join(__dirname, "verifyEmail.hbs");
+    const templatePath = path.join(__dirname, filePath);
     const source = fs.readFileSync(templatePath, "utf8");
     const template = handlebars.compile(source);
     const mailOptions = {

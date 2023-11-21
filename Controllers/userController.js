@@ -6,8 +6,10 @@ const bcrypt = require("bcrypt");
 const { emailSender } = require("./emailController");
 const UserAuth = require("../Models/authModel");
 
-const createToken = (_id) => {
-  return jwt.sign({ _id }, process.env.SECRET);
+const createToken = (_id, dateModified) => {
+  return jwt.sign({ _id, dateModified }, process.env.SECRET, {
+    expiresIn: "30d",
+  });
 };
 
 const createVerificationPin = () => {
@@ -21,7 +23,7 @@ const loginUser = async (req, res) => {
     const user = await User.login(signature, password);
     const isVerified = user.isVerified;
     const is2FAEnabled = user.is2FAEnabled;
-    const token = createToken(user._id);
+    const token = createToken(user._id, user.dateModified);
 
     // not verified
     if (!isVerified || is2FAEnabled) {
@@ -37,7 +39,13 @@ const loginUser = async (req, res) => {
           userEmail: user.email,
           pin: hashedPin,
         });
-        emailSender(user.email, "Email Verification", user.username, pin);
+        emailSender(
+          user.email,
+          "Email Verification",
+          user.username,
+          pin,
+          "verifyEmail.hbs"
+        );
 
         return res.status(200).json({
           token,
@@ -59,7 +67,13 @@ const loginUser = async (req, res) => {
           userEmail: user.email,
           pin: hashedPin,
         });
-        emailSender(user.email, "Email Verification", user.username, pin);
+        emailSender(
+          user.email,
+          "Email Verification",
+          user.username,
+          pin,
+          "verifyEmail.hbs"
+        );
 
         return res.status(200).json({
           token,
@@ -75,7 +89,12 @@ const loginUser = async (req, res) => {
       }
     }
     // we can delete the old ones here if possible
-    const { _id, password: userPassword, ...userData } = user.toObject();
+    const {
+      _id,
+      dateModified,
+      password: userPassword,
+      ...userData
+    } = user.toObject();
     return res.status(200).json({ token, ...userData });
   } catch (error) {
     return res.status(401).json({ error: error.message });
@@ -89,11 +108,18 @@ const signupUser = async (req, res) => {
     let pin = createVerificationPin();
     hashedPin = await bcrypt.hash(pin, salt);
     const userAuth = await UserAuth.create({
+      userId: user._id,
       userEmail: email,
       pin: hashedPin,
     });
-    await emailSender(email, "Email Verification", username, pin);
-    const token = createToken(user._id);
+    await emailSender(
+      email,
+      "Email Verification",
+      username,
+      pin,
+      "verifyEmail.hbs"
+    );
+    const token = createToken(user._id, user.dateModified);
     res.status(201).json({ token });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -147,17 +173,78 @@ const getUser = async (req, res) => {
   try {
     const userId = req.userId;
     const user = await User.findById(userId);
-    const { _id, password: userPassword, ...userData } = user.toObject();
+    const {
+      _id,
+      dateModified,
+      password: userPassword,
+      ...userData
+    } = user.toObject();
     res.status(200).json(userData);
   } catch (err) {
     res.status(400).json(err);
   }
 };
 
+const changePassword = async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  const userId = req.userId;
+  if (!oldPassword || !newPassword) {
+    return res.status(400).json({ error: "All fields required" });
+  }
+  try {
+    const user = await User.findById(userId);
+    const match = await bcrypt.compare(oldPassword, user.password);
+    if (!match) {
+      return res.status(403).json({ error: "UnAuthorized Access!" });
+    }
+    // if the user has the old password correct
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(newPassword, salt);
+    updatedUser = await User.findOneAndUpdate(
+      { _id: userId },
+      { password: hash, dateModified: Date.now() },
+      { new: true }
+    );
+    const token = createToken(user._id, user.dateModified);
+    res.status(200).json(token);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const { password } = req.body;
+  const userId = req.userId;
+  if (!password) {
+    return res.status(400).json({ error: "All fields required" });
+  }
+  try {
+    const user = await User.findById(userId);
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+    updatedUser = await User.findOneAndUpdate(
+      { _id: userId },
+      { password: hash, dateModified: Date.now() },
+      { new: true }
+    );
+    const token = createToken(user._id, user.dateModified);
+    const {
+      _id,
+      dateModified,
+      password: userPassword,
+      ...userData
+    } = user.toObject();
+    res.status(200).json({ token, ...userData });
+  } catch (err) {
+    res.status(400).json(err);
+  }
+};
 module.exports = {
   loginUser,
   signupUser,
   toggle2FA,
   toggleBiometricAuth,
   getUser,
+  changePassword,
+  resetPassword,
 };
