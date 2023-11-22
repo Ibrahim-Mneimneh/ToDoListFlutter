@@ -138,7 +138,9 @@ const resetPasswordRequest = async (req, res) => {
       return res.status(404).json({ error: "Invalid Email/Username." });
     }
     //delete old auth
-    const deleteAuth = FPAuth.findOneAndDelete({ userEmail: identity.email });
+    const deleteAuth = await FPAuth.findOneAndDelete({
+      userEmail: identity.email,
+    });
 
     let pin = createVerificationPin();
     const salt = await bcrypt.genSalt(10);
