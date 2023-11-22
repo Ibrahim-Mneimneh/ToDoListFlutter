@@ -130,12 +130,10 @@ const verifyForgetPassword = async (req, res) => {
 const resetPasswordRequest = async (req, res) => {
   const { signature } = req.body;
   try {
-    let identity;
-    if (validator.isEmail(signature)) {
-      identity = await User.findOne({ email: signature });
-    } else {
-      identity = await User.findOne({ username: signature });
-    }
+    let identity = validator.isEmail(signature)
+      ? await User.findOne({ email: signature })
+      : await User.findOne({ username: signature });
+
     if (!identity) {
       return res.status(404).json({ error: "Invalid Email/Username." });
     }
