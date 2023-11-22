@@ -65,14 +65,16 @@ const verifyEmail = async (req, res) => {
 };
 
 const verifyForgetPassword = async (req, res) => {
-  const { pin } = req.body;
-  const userId = req.userId;
+  const { pin, email } = req.body;
+  if (!pin || !email) {
+    res.status(400).json({ error: "Please fill all required fields." });
+  }
   try {
-    const user = await User.findOne({ _id: userId });
+    const user = await User.findOne({ email });
     if (!user) {
       res.status(404).json({ error: "User Not found" });
     }
-    const fpAuth = await FPAuth.findOne({ userId });
+    const fpAuth = await FPAuth.findOne({ userEmail: email });
     // check for the userAuth
     if (!fpAuth) {
       return res.status(403).json({ error: "UnAuthorized Access!" });
@@ -80,9 +82,29 @@ const verifyForgetPassword = async (req, res) => {
     // check if the token is expired if so delete it
     if (fpAuth.expiresIn < Date.now()) {
       const deletedfpAuth = await FPAuth.findOneAndDelete({
-        userId,
+        userEmail: email,
       });
-      return res.status(400).json({ error: "Session expired" });
+      let pin = createVerificationPin();
+      const salt = await bcrypt.genSalt(10);
+      const hashedPin = await bcrypt.hash(pin, salt);
+      const newfpauth = await FPAuth.create({
+        userId: identity._id,
+        userEmail: identity.email,
+        pin: hashedPin,
+      });
+      if (!newfpauth) {
+        return res.status(400).json({ error: error.message });
+      }
+      emailSender(
+        user.email,
+        "Reset Password Verification",
+        user.username,
+        pin,
+        "forgetPassword.hbs"
+      );
+      return res
+        .status(400)
+        .json({ error: "Session expired, a new email was sent!" });
     }
     if (fpAuth.trials >= 4) {
       return res.status(403).json({ error: "UnAuthorized Access!" });
@@ -91,13 +113,13 @@ const verifyForgetPassword = async (req, res) => {
     // if the pin  doesn't matches that in the database
     if (!match) {
       const updatedAuth = await FPAuth.findOneAndUpdate(
-        { userId },
+        { userEmail: email },
         { trials: fpAuth.trials + 1 }
       );
       return res.status(403).json({ error: "UnAuthorized Access!" });
     }
     //send the user data
-    const token = createToken(userId, user.dateModified);
+    const token = createToken(user._id, user.dateModified);
     return res.status(200).json({ token });
   } catch (error) {
     return res.status(500).json({ error: error.message });

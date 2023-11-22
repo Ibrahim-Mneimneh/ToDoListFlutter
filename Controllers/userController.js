@@ -193,9 +193,12 @@ const changePassword = async (req, res) => {
   }
   try {
     const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
     const match = await bcrypt.compare(oldPassword, user.password);
     if (!match) {
-      return res.status(403).json({ error: "UnAuthorized Access!" });
+      return res.status(403).json({ error: "Invalid Password!" });
     }
     // if the user has the old password correct
     const salt = await bcrypt.genSalt(10);
@@ -206,7 +209,7 @@ const changePassword = async (req, res) => {
       { new: true }
     );
     const token = createToken(user._id, user.dateModified);
-    res.status(200).json(token);
+    return res.status(200).json({ token });
   } catch (err) {
     res.status(400).json(err);
   }

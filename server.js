@@ -17,8 +17,8 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/user", userRoutes);
-app.use(verifyUser);
 app.use("/api", authRoutes);
+app.use(verifyUser);
 app.use("/api/task", taskRoutes);
 
 mongoose
