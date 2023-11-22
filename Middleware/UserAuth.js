@@ -21,8 +21,6 @@ const verifyUser = async (req, res, next) => {
     }
     dateModified = new Date(dateModified);
     // Check if the timestamps match
-    console.log(user.dateModified.getTime());
-    console.log(dateModified.getTime());
     if (user.dateModified.getTime() != dateModified.getTime()) {
       return res.status(400).json({ error: "Expired token" });
     }

@@ -137,6 +137,9 @@ const resetPasswordRequest = async (req, res) => {
     if (!identity) {
       return res.status(404).json({ error: "Invalid Email/Username." });
     }
+    //delete old auth
+    const deleteAuth = FPAuth.findOneAndDelete({ userEmail: identity.email });
+
     let pin = createVerificationPin();
     const salt = await bcrypt.genSalt(10);
     const hashedPin = await bcrypt.hash(pin, salt);
@@ -145,9 +148,7 @@ const resetPasswordRequest = async (req, res) => {
       userEmail: identity.email,
       pin: hashedPin,
     });
-    if (!fpauth) {
-      return res.status(400).json({ error: error.message });
-    }
+
     let email = identity.email;
     const [name, domain] = email.split("@");
 
