@@ -88,8 +88,8 @@ const verifyForgetPassword = async (req, res) => {
       const salt = await bcrypt.genSalt(10);
       const hashedPin = await bcrypt.hash(pin, salt);
       const newfpauth = await FPAuth.create({
-        userId: identity._id,
-        userEmail: identity.email,
+        userId: user._id,
+        userEmail: user.email,
         pin: hashedPin,
       });
       if (!newfpauth) {
