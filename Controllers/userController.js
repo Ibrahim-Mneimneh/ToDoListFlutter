@@ -97,7 +97,7 @@ const loginUser = async (req, res) => {
     } = user.toObject();
     return res.status(200).json({ token, ...userData });
   } catch (error) {
-    return res.status(401).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 };
 
@@ -122,7 +122,7 @@ const signupUser = async (req, res) => {
     const token = createToken(user._id, user.dateModified);
     res.status(201).json({ token });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -143,7 +143,7 @@ const toggle2FA = async (req, res) => {
     } = updatedUser.toObject();
     res.status(200).json(updatedUserData);
   } catch (err) {
-    res.status(400).json(err);
+    res.status(500).json(err);
   }
 };
 
@@ -165,7 +165,7 @@ const toggleBiometricAuth = async (req, res) => {
     } = updatedUser.toObject();
     res.status(200).json(updatedUserData);
   } catch (err) {
-    res.status(400).json(err);
+    res.status(500).json(err);
   }
 };
 
@@ -181,7 +181,7 @@ const getUser = async (req, res) => {
     } = user.toObject();
     res.status(200).json(userData);
   } catch (err) {
-    res.status(400).json(err);
+    res.status(500).json(err);
   }
 };
 
@@ -208,10 +208,10 @@ const changePassword = async (req, res) => {
       { password: hash, dateModified: Date.now() },
       { new: true }
     );
-    const token = createToken(user._id, user.dateModified);
+    const token = createToken(user._id, updatedUser.dateModified);
     return res.status(200).json({ token });
   } catch (err) {
-    res.status(400).json(err);
+    res.status(500).json(err);
   }
 };
 
@@ -230,16 +230,16 @@ const resetPassword = async (req, res) => {
       { password: hash, dateModified: Date.now() },
       { new: true }
     );
-    const token = createToken(user._id, user.dateModified);
     const {
       _id,
       dateModified,
       password: userPassword,
       ...userData
-    } = user.toObject();
+    } = updatedUser.toObject();
+    const token = createToken(_id, dateModified);
     res.status(200).json({ token, ...userData });
   } catch (err) {
-    res.status(400).json(err);
+    res.status(500).json(err);
   }
 };
 module.exports = {
