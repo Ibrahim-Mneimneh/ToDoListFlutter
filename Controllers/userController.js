@@ -242,6 +242,7 @@ const resetPassword = async (req, res) => {
     res.status(500).json(err);
   }
 };
+
 module.exports = {
   loginUser,
   signupUser,

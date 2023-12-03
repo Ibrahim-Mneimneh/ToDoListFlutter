@@ -6,6 +6,8 @@ const FPAuth = require("../Models/FPAuthModel");
 const validator = require("validator");
 var randomize = require("randomatic");
 const { emailSender } = require("./emailController");
+const taskModel = require("../Models/taskModel");
+const DAAuth = require("../Models/DA-Auth");
 const createToken = (_id, dateModified) => {
   return jwt.sign({ _id, dateModified }, process.env.SECRET, {
     expiresIn: "30d",
@@ -58,6 +60,9 @@ const verifyEmail = async (req, res) => {
       ...userData
     } = updatedUser.toObject();
     const token = createToken(updatedUser._id, dateModified);
+    const deletedAuth = await UserAuth.findOneAndDelete({
+      userId,
+    });
     return res.status(200).json({ token, ...userData });
   } catch (error) {
     return res.status(500).json({ error: error.message });
@@ -118,6 +123,9 @@ const verifyForgetPassword = async (req, res) => {
       );
       return res.status(403).json({ error: "UnAuthorized Access!" });
     }
+    const deleteAuth = await FPAuth.findOneAndDelete({
+      userEmail: email,
+    });
     //send the user data
     const token = createToken(user._id, user.dateModified);
     return res.status(200).json({ token });
@@ -169,4 +177,116 @@ const resetPasswordRequest = async (req, res) => {
   }
 };
 
-module.exports = { verifyEmail, resetPasswordRequest, verifyForgetPassword };
+// Delete Account Request
+const deleteAccountRequest = async (req, res) => {
+  const userId = req.userId;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    let pin = createVerificationPin();
+    const salt = await bcrypt.genSalt(10);
+    const hashedPin = await bcrypt.hash(pin, salt);
+    const daAuth = await DAAuth.create({
+      userId: userId,
+      userEmail: user.email,
+      pin: hashedPin,
+    });
+
+    emailSender(
+      user.email,
+      "Delete Account Verification",
+      user.username,
+      pin,
+      "deleteAccount.hbs"
+    );
+    res.status(200).json({ Message: "Account Deletion Verification Sent!" });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+// delete account verification
+const deleteAccount = async (req, res) => {
+  const userId = req.userId;
+  const { pin } = req.body;
+
+  if (!pin) {
+    res.status(400).json({ error: "Please fill all required fields." });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({ error: "User Not found" });
+    }
+
+    const daAuth = await DAAuth.findOne({ userId });
+    // check for the userAuth
+    if (!daAuth) {
+      return res.status(403).json({ error: "UnAuthorized Access!" });
+    }
+
+    // check if the token is expired if so delete it
+    if (daAuth.expiresIn < Date.now()) {
+      const deletedDAAuth = await DAAuth.findOneAndDelete({
+        userId,
+      });
+      let pin = createVerificationPin();
+      const salt = await bcrypt.genSalt(10);
+      const hashedPin = await bcrypt.hash(pin, salt);
+      const newdaAuth = await DAAuth.create({
+        userId,
+        userEmail: user.email,
+        pin: hashedPin,
+      });
+
+      if (!newdaAuth) {
+        return res.status(400).json({ error: error.message });
+      }
+      emailSender(
+        user.email,
+        "Delete Account Verification",
+        user.username,
+        pin,
+        "DeleteAccount.hbs"
+      );
+      return res
+        .status(400)
+        .json({ error: "Session expired, a new email was sent!" });
+    }
+
+    if (daAuth.trials >= 4) {
+      return res.status(403).json({ error: "UnAuthorized Access!" });
+    }
+
+    const match = await bcrypt.compare(pin, daAuth.pin);
+
+    // if the pin  doesn't matches that in the database
+    if (!match) {
+      const updatedAuth = await DAAuth.findOneAndUpdate(
+        { userId },
+        { trials: daAuth.trials + 1 }
+      );
+      return res.status(403).json({ error: "UnAuthorized Access!" });
+    }
+    //Delete all user content
+    const deletedUser = await User.findByIdAndDelete(userId);
+    const deletedAuth = await UserAuth.findOneAndDelete({ userId });
+    const deletedfpAuth = await FPAuth.findOneAndDelete({ userId });
+    const deletedtasks = await taskModel.deleteMany({ userId });
+    return res
+      .status(200)
+      .json({ message: "Farewell, " + user.username + "!" });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = {
+  verifyEmail,
+  resetPasswordRequest,
+  verifyForgetPassword,
+  deleteAccountRequest,
+  deleteAccount,
+};

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Delete Account Verification</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        h1 {
+            font-size: 2.4rem;
+            margin-bottom: 0;
+        }
+
+        p {
+            margin-top: 0;
+        }
+
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .pinContainer {
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            justify-items: center;
+        }
+
+        .pin {
+            width: fit-content;
+            padding: 10px 10px 10px 10px;
+            border-radius: 0.5rem;
+            background-color: #3498db;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1>{{Subject}}</h1>
+
+        <p>Hello {{ username }},</p>
+
+        <p>To delete your account, please enter this pin to
+            the verification field:</p>
+        <div class="pinContainer">
+            <p class="pin">{{ pin }}</p>
+        </div>
+        <p>If you don't enter the PIN within 30 mins, your verification pin will expire.</p>
+        <p>Remark: This action can't be reverted. All your user data would be deleted if you proceed with this action.</p>
+        <p>It was nice having you,</p>
+        <p>To Do Buddy Support</p>
+    </div>
+</body>
+
+</html>
