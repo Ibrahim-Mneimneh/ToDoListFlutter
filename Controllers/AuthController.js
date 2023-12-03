@@ -6,7 +6,7 @@ const FPAuth = require("../Models/FPAuthModel");
 const validator = require("validator");
 var randomize = require("randomatic");
 const { emailSender } = require("./emailController");
-const taskModel = require("../Models/taskModel");
+const Task = require("../Models/taskModel");
 const DAAuth = require("../Models/DA-Auth");
 const createToken = (_id, dateModified) => {
   return jwt.sign({ _id, dateModified }, process.env.SECRET, {
@@ -274,7 +274,7 @@ const deleteAccount = async (req, res) => {
     const deletedUser = await User.findByIdAndDelete(userId);
     const deletedAuth = await UserAuth.findOneAndDelete({ userId });
     const deletedfpAuth = await FPAuth.findOneAndDelete({ userId });
-    const deletedtasks = await taskModel.deleteMany({ userId });
+    const deletedtasks = await Task.deleteMany({ userId });
     return res
       .status(200)
       .json({ message: "Farewell, " + user.username + "!" });
